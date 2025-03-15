@@ -1,18 +1,12 @@
 from langgraph.graph import StateGraph
 
-from app.workflow.document_validation_grap_builder import DocumentValidationGraphBuilder
-from app.workflow.diagnosis_validation_graph_builder import DiagnosisValidationGraph
+from app.workflow.document_extraction_graph import DocumentExtractionGraph
 
 
 class GraphDirector:
     """Director que maneja la construcción de grafos"""
 
     @staticmethod
-    def diagnosis_validation_graph() -> StateGraph:
-        builder = DiagnosisValidationGraph()
-        return builder.build()
-
-    @staticmethod
-    def document_validation_graph() -> StateGraph:
-        builder = DocumentValidationGraphBuilder()
+    def document_extraction() -> StateGraph:
+        builder = DocumentExtractionGraph()
         return builder.build()

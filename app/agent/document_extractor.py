@@ -1,6 +1,8 @@
 from typing import Dict, Any, Optional
 from pathlib import Path
 import logging
+
+from fastapi import UploadFile
 from mistralai import Mistral
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.output_parsers import StrOutputParser
@@ -41,78 +43,53 @@ class DocumentExtractorAgent:
             Updated state with extracted text and structured content
         """
         logger.info("Starting document extraction process")
-        pdf_path = state.get("file_path")
+        file = state.get("file")
 
-        if not pdf_path or not Path(pdf_path).exists():
-            logger.error(f"Invalid file path: {pdf_path}")
-            return {
-                "success": False,
-                "error": f"File not found: {pdf_path}",
-                "extracted_text": None,
-                "structured_content": None
-            }
+        # Extract document text using Mistral OCR
+        extracted_text = await self._process_with_mistral_ocr(file)
 
-        try:
-            # Extract document text using Mistral OCR
-            extracted_text = await self._process_with_mistral_ocr(pdf_path)
+        # Process extracted content to structure it
+        structured_content = await self._structure_extracted_content(extracted_text)
 
-            # Process extracted content to structure it
-            structured_content = await self._structure_extracted_content(extracted_text)
+        logger.info(f"Successfully extracted and structured content from {structured_content}")
 
-            logger.info(f"Successfully extracted and structured content from {pdf_path}")
+        # Return updated state
+        return {
+            "extracted_text": extracted_text,
+            "structured_content": structured_content,
+            "file_name": file.filename,
+        }
 
-            # Return updated state
-            return {
-                "success": True,
-                "extracted_text": extracted_text,
-                "structured_content": structured_content,
-                "file_path": pdf_path
-            }
+    async def _process_with_mistral_ocr(self, file: UploadFile) -> str:
+        """Process PDF document with Mistral OCR API."""
+        logger.info(f"Processing document with Mistral OCR: {file.filename}")
 
-        except Exception as e:
-            logger.error(f"Error during document extraction: {str(e)}")
-            return {
-                "success": False,
-                "error": str(e),
-                "extracted_text": None,
-                "structured_content": None
-            }
-
-    async def _process_with_mistral_ocr(self, pdf_path: str) -> str:
-        """
-        Process PDF document with Mistral OCR API.
-
-        Args:
-            pdf_path: Path to the PDF file
-
-        Returns:
-            Extracted text content
-        """
-        logger.info(f"Processing document with Mistral OCR: {pdf_path}")
+        # Asegurarse de que estamos al inicio del archivo
+        await file.seek(0)
+        pdf_content = await file.read()
 
         try:
-            # Upload the file to Mistral
+            # Subir el archivo a Mistral usando el mismo formato de la documentación
             uploaded_pdf = self.client.files.upload(
                 file={
-                    "file_name": Path(pdf_path).name,
-                    "content": open(pdf_path, "rb"),
+                    "file_name": file.filename,
+                    "content": pdf_content,
                 },
                 purpose="ocr"
             )
 
-            # Get a signed URL to access the file
-            signed_url = self.client.files.get_signed_url(file_id=uploaded_pdf.id)
+            # Obtener la URL firmada para acceder al archivo
+            signed_url = self.client.files.get_signed_url(file_id=uploaded_pdf.id, expiry=1)
 
-            # Process the document with OCR
+            # Procesar el documento con OCR
+            from mistralai import DocumentURLChunk
+
             ocr_response = self.client.ocr.process(
-                model="mistral-ocr-latest",
-                document={
-                    "type": "document_url",
-                    "document_url": signed_url.url,
-                }
+                document=DocumentURLChunk(document_url=signed_url.url),
+                model="mistral-ocr-latest"
             )
 
-            # Combine text from all pages
+            # Combinar texto de todas las páginas
             text = "\n\n".join([page.markdown for page in ocr_response.pages])
 
             logger.info(f"Successfully extracted {len(text)} characters from document")
