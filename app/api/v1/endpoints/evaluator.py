@@ -83,7 +83,8 @@ async def validate_document(
         response = {
             "extracted_text": result["extracted_text"],
             "component": result["structured_content"],
-            "person_name": result["person_name"]
+            "person_name": result["person_name"],
+            "segmented_sections": result["segmented_sections"]
         }
         return response
 

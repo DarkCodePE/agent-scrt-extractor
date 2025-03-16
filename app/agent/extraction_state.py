@@ -12,6 +12,11 @@ class PersonValidationDetails(TypedDict):
     document_number: str
     coverage_start_date: str
 
+
+class DocumentStructuredContent(TypedDict):
+    content: List[str]
+
+
 class DocumentValidationDetails(TypedDict):
     """Validation details extracted from the document"""
     start_date_validity: str
@@ -22,8 +27,9 @@ class DocumentValidationDetails(TypedDict):
     date_of_issuance: str
     person_by_policy: List[PersonValidationDetails]
     signatories: List[str]
-    extracted_text:str
+    extracted_text: str
     file: UploadFile
-    person_name:str
-    structured_content:str
-    file_name:str
+    person_name: str
+    structured_content: str
+    file_name: str
+    segmented_sections: List[DocumentStructuredContent]

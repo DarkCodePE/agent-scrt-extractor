@@ -111,42 +111,15 @@ class DocumentExtractorAgent:
         """
         logger.info("Structuring extracted document content")
 
-        # Simple structure example - this can be enhanced with better section detection
         structured_content = {
-            "sections": [],
+            "raw_text": text,
             "metadata": {
                 "total_length": len(text),
-                "section_count": 0
+                "document_type": "SCTR"
             }
         }
 
-        # Simple section detection based on newlines and potential headers
-        current_section = ""
-        current_title = "Untitled Section"
+        logger.info(
+            f"Basic document structuring complete - identified as {structured_content['metadata']['document_type']}")
 
-        for line in text.split('\n'):
-            # Simple heuristic for potential section headers (short lines that end with colon or are ALL CAPS)
-            is_potential_header = (len(line.strip()) < 50 and line.strip().endswith(':')) or line.isupper()
-
-            if is_potential_header and current_section:
-                # Save the previous section
-                structured_content["sections"].append({
-                    "title": current_title,
-                    "content": current_section.strip()
-                })
-                current_section = ""
-                current_title = line.strip()
-            else:
-                current_section += line + "\n"
-
-        # Add the last section
-        if current_section:
-            structured_content["sections"].append({
-                "title": current_title,
-                "content": current_section.strip()
-            })
-
-        structured_content["metadata"]["section_count"] = len(structured_content["sections"])
-
-        logger.info(f"Identified {len(structured_content['sections'])} sections in document")
         return structured_content
