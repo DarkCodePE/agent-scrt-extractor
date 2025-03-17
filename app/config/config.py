@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     openai_api_key: str
     anthropic_api_key: Optional[str] = None
     google_api_key: Optional[str] = None
+    mistral_api_key: str
 
     # Database Configuration
     db_name: str

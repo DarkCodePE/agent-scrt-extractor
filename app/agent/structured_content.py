@@ -28,8 +28,7 @@ class StructuredContentExtractor:
         # Initialize LLM manager with compilation-specific configuration
         llm_config = LLMConfig(
             temperature=0.0,  # Use deterministic output for compilation
-            streaming=False,
-            max_tokens=4000  # Larger context for final compilation
+            streaming=False
         )
         self.llm_manager = LLMManager(llm_config)
         # Get the primary LLM for report generation

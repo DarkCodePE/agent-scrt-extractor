@@ -1,7 +1,7 @@
 {
     "dependencies": ["."],
     "graphs": {
-        "report": "./app/workflow/diagnosis_graph.py:diagnosis_graph"
+        "report": "./app/workflow/document_graph.py:document_graph"
     },
     "python_version": "3.11",
     "env": ".env",
