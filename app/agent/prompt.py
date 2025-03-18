@@ -203,7 +203,7 @@ SEGMENTATION_PROMPT_V3 = """
     6. **Find Insured Person**:
        - Search the document for the list of insured persons.
        
-   the result should be a list of logical sections separated by policy number, with the following keys :
+   the result must always be a list of separate logical sections, with the following keys :
     - "validity": [rango_fechas_o_null],
     - "start_date_validity": [fecha_inicio_o_null],
     - "end_date_validity": [fecha_fin_o_null],      

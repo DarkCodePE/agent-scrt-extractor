@@ -43,7 +43,7 @@ class StructuredContentExtractor:
         result = structured_llm.invoke([
             SystemMessage(content=system_instructions),
             HumanMessage(
-                content="Extrae los datos clave de un documento, particularmente la vigencia (fechas o periodos), empresa, póliza")
+                content="Extrae los datos clave de un documento, particularmente la vigencia (fechas o periodos), empresa, póliza y retorna un lista segementada de secciones logicas")
         ])
         print(f"Segmented sections: {result}")
         return {"segmented_sections": result}

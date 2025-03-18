@@ -11,10 +11,20 @@ class PersonValidationDetails(TypedDict):
     full_name: str
     document_number: str
     coverage_start_date: str
+    type_document: str
 
+class DocumentStructured(TypedDict):
+    start_date_validity: str
+    end_date_validity: str
+    validity: str
+    policy_number: str
+    company: str
+    insurance_company: str
+    person_by_policy: List[PersonValidationDetails]
+    signatories: List[str]
 
 class DocumentStructuredContent(TypedDict):
-    content: List[str]
+    content: List[DocumentStructured]
 
 
 class DocumentValidationDetails(TypedDict):
